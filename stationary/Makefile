@@ -80,8 +80,8 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-FREAKUSB=../../root/freakusb
-CHIBI=../../root
+FREAKUSB=../../chibi/freakusb
+CHIBI=../../chibi
 SRC = $(TARGET).c \
 	$(FREAKUSB)/usb/usb.c \
 	$(FREAKUSB)/usb/ctrl.c \
@@ -144,7 +144,7 @@ DEBUG = dwarf-2
 #     Each directory must be seperated by a space.
 #     Use forward slashes for directory separators.
 #     For a directory that has spaces, enclose it in quotes.
-EXTRAINCDIRS = $(FREAKUSB)/usb $(FREAKUSB)/class/CDC $(CHIBI)/chibi ../include
+EXTRAINCDIRS = $(FREAKUSB)/usb $(FREAKUSB)/class/CDC $(CHIBI)/chibi/hw/avrusb32/at86rf230 $(CHIBI)/chibi ../include
 
 #check which directories to include depending on part type
 ifeq ($(MCU), at90usb162)
@@ -469,7 +469,7 @@ end:
 
 # Display size of file.
 HEXSIZE = $(SIZE) --target=$(FORMAT) $(TARGET).hex
-#ELFSIZE = $(SIZE) --mcu=$(MCU) --format=avr $(TARGET).elf
+#HEXSIZE = $(SIZE) --target=ihex $(TARGET).hex
 ELFSIZE = $(SIZE) --target=elf32-avr $(TARGET).elf
 
 sizebefore:

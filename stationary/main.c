@@ -12,7 +12,7 @@
 #include "cmd_tbl.h"
 #include "cmd.h"
 #include "chb.h"
-#include "at86rf230/chb_drvr.h"
+#include "chb_drvr.h"
 
 #include "juggling.h"
 
@@ -83,6 +83,8 @@ int main()
             pcb->data_rcv = false;
             if (print_adxl)
                 printf_P(PSTR("got %d, %d, %d\n"), acc_X, acc_Y, acc_Z);
+            // clear the rx flag and reset the buffer (as per chb_demo.c)
+            chb_clr();
         }
 
         _delay_ms(10);
