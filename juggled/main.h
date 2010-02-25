@@ -1,35 +1,4 @@
-/*******************************************************************
-    Copyright (C) 2009 FreakLabs
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions
-    are met:
-
-    1. Redistributions of source code must retain the above copyright
-       notice, this list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright
-       notice, this list of conditions and the following disclaimer in the
-       documentation and/or other materials provided with the distribution.
-    3. Neither the name of the the copyright holder nor the names of its contributors
-       may be used to endorse or promote products derived from this software
-       without specific prior written permission.
-
-    THIS SOFTWARE IS PROVIDED BY THE THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND
-    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-    ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
-    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-    OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-    HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-    OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-    SUCH DAMAGE.
-
-    Originally written by Christopher Wang aka Akiba.
-    Please post support questions to the FreakLabs forum.
-*******************************************************************/
+/*******************************************************************/
 /*!
     \file main.h
     \ingroup cdc_demo
@@ -38,15 +7,56 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include "types.h"
-void cmd_enb_print(U8 argc, char **argv);
-void cmd_enb_adxl(U8 argc, char **argv);
-void cmd_enb_print(U8 argc, char **argv);
-void cmd_enb_transmit(U8 argc, char **argv);
+// This acts as the "config.h" right now -i.e. please don't create any
+// circular dependencies, try to minimize what goes in here and make it
+// a leaf node.
+
+#include <avr/io.h>
+#include <types.h>
 void cmd_reg_read(U8 argc, char **argv);
 void cmd_reg_write(U8 argc, char **argv);
 void cmd_set_short_addr(U8 argc, char **argv);
 void cmd_get_short_addr(U8 argc, char **argv);
+void cmd_print_adxl_transmit_count(U8 argc, char **argv);
+void cmd_print_adxl_read_count(U8 argc, char **argv);
+
+// Test / Debugging commands
+void cmd_who(U8 argc, char **argv);
+void cmd_send_test_message(U8 argc, char **argv);
+
+// Some helpers to make the code slightly easier to read
+#define READ_WRITE_FLAG__CMD_IMPL(flag) \
+void cmd_##flag##_on (U8 argc, char **argv) \
+{ \
+ flag = true;\
+} \
+void cmd_##flag##_off (U8 argc, char **argv) \
+{ \
+ flag = false;\
+}
+
+#define READ_WRITE_FLAG__FLAG_IMP(flag) \
+static bool flag;
+
+#define READ_WRITE_FLAG__FLAG_IMP_DEFAULT(flag, def) \
+static bool flag = def;
+
+
+#define READ_WRITE_FLAG__CMD_DECL(flag) \
+void cmd_##flag##_on (U8 argc, char **argv); \
+void cmd_##flag##_off (U8 argc, char **argv)
+
+#define READ_WRITE_FLAG__CMD_TBL(flag) \
+ {#flag "_on", cmd_##flag##_on},\
+ {#flag "_off", cmd_##flag##_off}
+
+READ_WRITE_FLAG__CMD_DECL(read_adxl_flag);
+READ_WRITE_FLAG__CMD_DECL(adxl_flag);
+READ_WRITE_FLAG__CMD_DECL(print_flag);
+READ_WRITE_FLAG__CMD_DECL(transmit_flag);
+
+#define SPI_ENB() do {PORTC &= ~(_BV(PORTC6));} while(0)
+#define SPI_DIS() do {PORTC |= _BV(PORTC6);} while(0)
 
 #endif
 

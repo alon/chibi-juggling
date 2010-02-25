@@ -42,6 +42,9 @@
 void cmd_enb_print(U8 argc, char **argv);
 void cmd_set_short_addr(U8 argc, char **argv);
 void cmd_get_short_addr(U8 argc, char **argv);
+void cmd_who(U8 argc, char **argv);
+void cmd_is_receiving(U8 argc, char **argv);
+void cmd_recv(U8 argc, char **argv);
 
 #endif
 

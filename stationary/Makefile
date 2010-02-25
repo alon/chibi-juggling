@@ -81,7 +81,7 @@ OBJDIR = .
 
 # List C source files here. (C dependencies are automatically generated.)
 FREAKUSB=../../root/freakusb
-CHIBI=../../root/Chibi
+CHIBI=../../root
 SRC = $(TARGET).c \
 	$(FREAKUSB)/usb/usb.c \
 	$(FREAKUSB)/usb/ctrl.c \
@@ -109,7 +109,7 @@ else ifeq ($(MCU), atmega32u4)
 	SRC += 	$(FREAKUSB)/hw/atmega32u4/ep.c \
 		$(FREAKUSB)/hw/atmega32u4/hw.c \
 		$(FREAKUSB)/hw/atmega32u4/isr.c \
-		$(CHIBI)/chibi/hw/avrusb32/chb_drvr.c
+		$(CHIBI)/chibi/hw/avrusb32/at86rf230/chb_drvr.c
 endif
 	
 
@@ -469,7 +469,8 @@ end:
 
 # Display size of file.
 HEXSIZE = $(SIZE) --target=$(FORMAT) $(TARGET).hex
-ELFSIZE = $(SIZE) --mcu=$(MCU) --format=avr $(TARGET).elf
+#ELFSIZE = $(SIZE) --mcu=$(MCU) --format=avr $(TARGET).elf
+ELFSIZE = $(SIZE) --target=elf32-avr $(TARGET).elf
 
 sizebefore:
 	@if test -f $(TARGET).elf; then echo; echo $(MSG_SIZE_BEFORE); $(ELFSIZE); \
