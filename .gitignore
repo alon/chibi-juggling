@@ -1,0 +1,13 @@
+.dep
+*.o
+*.map
+*.lst
+*.lss
+*.hex
+*.elf
+*.eep
+*.aps
+*.aws
+*.sym
+sourceLineMap.txt
+tags
