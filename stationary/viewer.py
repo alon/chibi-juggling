@@ -1,4 +1,5 @@
 import vtk
+import reader
  
 def main():
    #Create a sphere

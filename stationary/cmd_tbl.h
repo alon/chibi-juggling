@@ -9,6 +9,9 @@ static cmd_t cmd_tbl[] =
     {"enb",     cmd_enb_print},
     {"ssa",     cmd_set_short_addr},
     {"gsa",     cmd_get_short_addr},
+    {"who",     cmd_who},
+    {"isrec",   cmd_is_receiving},
+    {"recv",    cmd_recv},
     {NULL,      NULL}
 };
 

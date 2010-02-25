@@ -36,90 +36,63 @@
     \ingroup cdc_demo
 */
 /*******************************************************************/
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <avr/pgmspace.h>
 #include <avr/io.h>
 #include <util/delay.h>
+
 #include "main.h"
 #include "cmd.h"
 #include "chb.h"
-#include "chb_drvr.h" // for short address
+#include "at86rf230/chb_drvr.h" // for short address
 #include "juggling.h"
-
-#define SPI_ENB() do {PORTC &= ~(_BV(PORTC6));} while(0)
-#define SPI_DIS() do {PORTC |= _BV(PORTC6);} while(0)
+#include "adxl.h"
+#include "spi.h"
 
 static bool rd_adxl = true; // default to on. But allow usb cmd to change it.
-static bool print_adxl = false;
+
+U32 adxl_read_count = 0;
+U32 adxl_transmit_count = 0;
+
+#define CYCLES_PER_TRANSMIT 200
+
+READ_WRITE_FLAG__FLAG_IMP(read_adxl_flag);
+READ_WRITE_FLAG__FLAG_IMP_DEFAULT(adxl_flag, false);
+READ_WRITE_FLAG__FLAG_IMP_DEFAULT(print_flag, false);
+READ_WRITE_FLAG__FLAG_IMP(transmit_flag);
+
 static bool transmit_adxl = true;
+static U16 time_to_transmit = false;
 
-U16 acc_X = 0, acc_Y = 0, acc_Z = 0;
+#define CYCLES_INIT_DONE 10000
 
-/**************************************************************************/
-/*!
 
-*/
-/**************************************************************************/
-void spi_init()
-{
-    // configure the SPI slave_select, spi clk, and mosi pins as output. the miso pin
-    // is cleared since its an input.
-    DDRC |= _BV(PORTC6);
-    PORTC |= _BV(PORTC6);
-
-    DDRB |= _BV(PORTB1) | _BV(PORTB2);
-    PORTB |= _BV(PORTB1); 
-
-    // set to master mode
-    // set clock polarity to be high idle
-    // set clock phase to sample on trailing edge of sclk
-    // set the clock freq to fck/128.
-    SPCR = _BV(MSTR) | _BV(CPOL) | _BV(CPHA);
-    SPSR = _BV(SPI2X);
-
-    // enable the SPI master
-    SPCR |= (1 << SPE);
-}
-
-/**************************************************************************/
-/*!
-    This function both reads and writes data. For write operations, include data
-    to be written as argument. For read ops, use dummy data as arg. Returned
-    data is read byte val.
-*/
-/**************************************************************************/
-U8 spi_xfer_byte(U8 data)
-{
-    SPDR = data;
-    while (!(SPSR & (1<<SPIF)));
-    return SPDR;
-}
 
 /**************************************************************************/
 /*!
 
+ Globals and small helpers for main
 */
 /**************************************************************************/
-void adxl_init()
+U8 dat[ADXL_PACKET_LENGTH]; // data of packet to be sent
+U8* read_start = dat + ADXL_MAGIC_LENGTH;
+
+void main_read_adxl()
 {
-    // set power bit
-    SPI_ENB();
-    spi_xfer_byte(0x2d);
-    spi_xfer_byte(0x28);
-    SPI_DIS();
-
-    // set full resolution
-    SPI_ENB();
-    spi_xfer_byte(0x31);
-    spi_xfer_byte(0x08);
-    SPI_DIS();
-
-    // clear fifo
-    SPI_ENB();
-    spi_xfer_byte(0x38);
-    spi_xfer_byte(0x00);
-    SPI_DIS();
+    // reinit adxl
+    spi_init();
+    adxl_init();
+    // read adxl
+    adxl_read_count++;
+    read_adxl(read_start);
+    acc_X = (read_start[1] << 8)
+           + read_start[0];
+    acc_Y = (read_start[3] << 8)
+           + read_start[2];
+    acc_Z = (read_start[5] << 8)
+           + read_start[4];
 }
 
 /**************************************************************************/
@@ -129,9 +102,14 @@ void adxl_init()
 /**************************************************************************/
 int main()
 {
+    // lame time counter, should be using timer interrupt
+    unsigned int t = 0;
     // turn on the led
     DDRC |= 1<<PORTC7;
     PORTC |= 1<<PORTC7;
+
+    spi_init();
+    adxl_init();
 
     cmd_init();
 
@@ -140,48 +118,48 @@ int main()
 
     chb_init();
 
-    // init the spi
-    spi_init();
-    adxl_init();
-
     // set our short address - I think its eeprom, so only set it if it
     // isn't that already
     if (chb_get_short_addr() != JUGGLED_SHORT_ADDRESS)
         chb_set_short_addr(JUGGLED_SHORT_ADDRESS);
 
+    spi_init(); // don't ask me why this is done twice. It just is. I WILL INVESTIGATE!
+
     // turn on the led
     PORTC |= 1<<PORTC7;
 
-    // and off we go...
+    dat[0] = ADXL_MAGIC_BYTE_1;
+    dat[1] = ADXL_MAGIC_BYTE_2;
+    
+    bool initing = true;
+
     while (1)
     {
+        ++t;
+        if (initing && t == CYCLES_INIT_DONE) {
+            initing = false;
+            PORTC &= ~(1<<PORTC7);
+            time_to_transmit = CYCLES_PER_TRANSMIT;
+        }
         cmd_poll();
 
         if (rd_adxl)
         {
-            U8 i, dat[6];
+            main_read_adxl();
 
-            // read adxl
-            SPI_ENB();
-            spi_xfer_byte(0xf2);
-
-            for (i=0; i<6; i++)
-            {
-                dat[i] = spi_xfer_byte(0);
-            }
-            SPI_DIS();
             // write packet - just the raw bytes from SPI will do.
-            if (transmit_adxl)
-                chb_write(STATIONARY_SHORT_ADDRESS, dat, 6);
+            if (transmit_flag && time_to_transmit <= 0) {
+                adxl_transmit_count++;
+                time_to_transmit = CYCLES_PER_TRANSMIT;
+                // reinit chibi stack (no need to reset address)
+                chb_init();
+                chb_write(STATIONARY_SHORT_ADDRESS, dat, ADXL_PACKET_LENGTH);
+            }
+            if (time_to_transmit > 0) --time_to_transmit;
+            if (print_flag)
+                printf_P(PSTR("%d %d\t%d\t%d\n"), adxl_read_count, acc_X, acc_Y, acc_Z);
 
-            acc_X = (dat[1] << 8) + dat[0]; // TODO - or reverse?
-            acc_Y = (dat[3] << 8) + dat[2]; // TODO - or reverse?
-            acc_Z = (dat[5] << 8) + dat[4]; // TODO - or reverse?
-
-            if (print_adxl)
-                printf_P(PSTR("%d\t%d\t%d\n"), acc_X, acc_Y, acc_Z);
-
-            _delay_ms(100);
+            //_delay_ms(100);
         }
     }
 }
@@ -234,39 +212,6 @@ void cmd_reg_write(U8 argc, char **argv)
 
 */
 /**************************************************************************/
-void cmd_enb_adxl(U8 argc, char **argv)
-{
-    U8 val = strtol(argv[1], NULL, 10);
-    rd_adxl = val;
-}
-
-/**************************************************************************/
-/*!
-
-*/
-/**************************************************************************/
-void cmd_enb_print(U8 argc, char **argv)
-{
-    U8 val = strtol(argv[1], NULL, 10);
-    print_adxl = val;
-}
-
-/**************************************************************************/
-/*!
-
-*/
-/**************************************************************************/
-void cmd_enb_transmit(U8 argc, char **argv)
-{
-    U8 val = strtol(argv[1], NULL, 10);
-    transmit_adxl = val;
-}
-
-/**************************************************************************/
-/*!
-
-*/
-/**************************************************************************/
 void cmd_set_short_addr(U8 argc, char **argv)
 {
     U16 addr = strtol(argv[1], NULL, 16);
@@ -284,4 +229,47 @@ void cmd_get_short_addr(U8 argc, char **argv)
     printf_P(PSTR("Short Addr = %04X.\n"), addr);
 }
 
+/**************************************************************************/
+/*!
+
+*/
+/**************************************************************************/
+void cmd_who(U8 argc, char **argv)
+{
+    printf_P(PSTR("Juggled"));
+}
+
+
+/**************************************************************************/
+/*!
+
+*/
+/**************************************************************************/
+void cmd_print_adxl_transmit_count(U8 argc, char **argv)
+{
+    printf_P(PSTR("adxl transmitted %d\n"), adxl_transmit_count);
+}
+
+
+/**************************************************************************/
+/*!
+
+*/
+/**************************************************************************/
+void cmd_print_adxl_read_count(U8 argc, char **argv)
+{
+    printf_P(PSTR("adxl read %d\n"), adxl_read_count);
+}
+
+
+void cmd_send_test_message(U8 argc, char **argv)
+{
+    static U8 test_count = 0;
+    U8 str[10];
+    sprintf(str, "%d", test_count++);
+    chb_init();
+    chb_write(STATIONARY_SHORT_ADDRESS, str, strlen(str));
+}
+
+READ_WRITE_FLAG__CMD_IMPL(read_adxl_flag)
 

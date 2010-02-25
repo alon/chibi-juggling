@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import sys
 import serial
 import time
 
@@ -10,8 +11,8 @@ class Stationary(object):
 
     verbose = False
 
-    def __init__(self):
-        self._s = serial.Serial('/dev/ttyACM0')
+    def __init__(self, device_file):
+        self._s = serial.Serial(device_file)
         # initial "enter" to get into a known state.
         self.write('')
 
@@ -74,7 +75,10 @@ class Stationary(object):
                 pass
 
 def main():
-    stationary = Stationary()
+    device_file = '/dev/ttyACM0'
+    if len(sys.argv) > 1:
+        device_file = sys.argv[-1]
+    stationary = Stationary(device_file)
     # wait for something
     # to make sure this stops at an end of line, so we use s.readline() from now
     for acc_X, acc_Y, acc_Z in stationary.accelerations():
