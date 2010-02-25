@@ -11,3 +11,5 @@
 *.sym
 sourceLineMap.txt
 tags
+*.pyc
+*.sw?

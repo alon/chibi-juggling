@@ -61,7 +61,7 @@ U32 adxl_transmit_count = 0;
 READ_WRITE_FLAG__FLAG_IMP(read_adxl_flag);
 READ_WRITE_FLAG__FLAG_IMP_DEFAULT(adxl_flag, false);
 READ_WRITE_FLAG__FLAG_IMP_DEFAULT(print_flag, false);
-READ_WRITE_FLAG__FLAG_IMP(transmit_flag);
+READ_WRITE_FLAG__FLAG_IMP_DEFAULT(transmit_flag, true);
 
 static bool transmit_adxl = true;
 static U16 time_to_transmit = false;
@@ -271,5 +271,8 @@ void cmd_send_test_message(U8 argc, char **argv)
     chb_write(STATIONARY_SHORT_ADDRESS, str, strlen(str));
 }
 
-READ_WRITE_FLAG__CMD_IMPL(read_adxl_flag)
+READ_WRITE_FLAG__CMD_IMPL(read_adxl_flag);
+READ_WRITE_FLAG__CMD_IMPL(adxl_flag);
+READ_WRITE_FLAG__CMD_IMPL(print_flag);
+READ_WRITE_FLAG__CMD_IMPL(transmit_flag);
 
