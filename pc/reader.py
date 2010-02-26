@@ -80,11 +80,17 @@ class Stationary(object):
                 # (float float float) seen
                 pass
 
-def main():
+def stationary_factory():
+    """ reads command line parameters and determines the device, returns a Stationary instance """
     device_file = '/dev/ttyACM0'
     if len(sys.argv) > 1:
         device_file = sys.argv[-1]
+    print "reading accelerations from device %s" % device_file
     stationary = Stationary(device_file)
+    return stationary
+
+def main():
+    stationary = stationary_factory()
     # wait for something
     # to make sure this stops at an end of line, so we use s.readline() from now
     for acc_X, acc_Y, acc_Z in stationary.accelerations():
