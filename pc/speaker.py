@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+import time
 
 import gst
 
@@ -22,15 +23,28 @@ def make_playbin(num):
     p.add(s)
     return p, s
 
-g_p, g_s = make_playbin(0) # This is the global playbin used by play
-g_p.set_state(gst.STATE_PLAYING)
+class Player:
+    min_delta = 2.0 # TODO: how to do this safely (getting segfaults on zaru)
+    def __init__(self):
+        self.p, self.s = make_playbin(0) # This is the global playbin used by play
+        self.p.set_state(gst.STATE_PLAYING)
+        self.last = time.time()
 
-def play(num):
-    global g_p
-    global g_s
-    g_p.set_state(gst.STATE_CHANGE_PLAYING_TO_PAUSED)
-    g_s.set_property("uri", "file://%s" % make_wav(num))
-    g_p.set_state(gst.STATE_PLAYING)
+    def play(self, num):
+        # TODO - fix this
+        #if self.p.get_state()[0] != gst.STATE_READY:
+        #    print self.p.get_state()
+        #    print 'not ready'
+        #    return
+        now = time.time()
+        if now - self.last < self.min_delta: return
+        self.last = now
+        self.p.set_state(gst.STATE_READY)
+        self.s.set_property("uri", "file://%s" % make_wav(num))
+        self.p.set_state(gst.STATE_PLAYING)
+
+wav_player = Player()
+play = wav_player.play
 
 def main():
     stationary = stationary_factory()
