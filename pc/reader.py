@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import os
+import re
 import sys
 import serial
 import time
@@ -10,6 +12,8 @@ class Stationary(object):
     """
 
     verbose = False
+    PROMPT = 'CHIBI >>' #'FREAKUSB >>'
+    re_accel = re.compile('.*[^0-9\d](-?[0-9]+).*,.*[^0-9\-](-?[0-9]+).*,.*[^0-9\-](-?[0-9]+).*')
 
     def __init__(self, device_file):
         self._s = serial.Serial(device_file)
@@ -28,7 +32,7 @@ class Stationary(object):
             lines.append(line)
             if self.verbose:
                 print "got %r" % line
-            if (''.join(lines)).find('FREAKUSB >>') != -1:
+            if (''.join(lines)).find(self.PROMPT) != -1:
                 found = True
         if self.verbose:
             line = s.read(s.inWaiting())
@@ -57,7 +61,9 @@ class Stationary(object):
 
     def _parse_acceleration(self, line):
         # units are g (1 == 9.81 m/s^2)
-        return [float(x)/256 for x in line.strip().split()]
+        if self.verbose:
+            print line
+        return [float(x)/256 for x in re.match(self.re_accel, line).groups()]
 
     def accelerations(self):
         self.enable_print()
