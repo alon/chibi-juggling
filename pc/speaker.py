@@ -10,7 +10,7 @@ from sp import throws
 def make_wav(num):
     filename = 'wav/%s.wav' % num
     if not os.path.exists(filename):
-        os.system('flite -t %s -o %s.wav' % (num, num))
+        os.system('flite -t %s -o wav/%s.wav' % (num, num))
     assert(os.path.exists(filename))
     return filename
 
