@@ -26,9 +26,14 @@ def make_playbin(num):
 class Player:
     min_delta = 2.0 # TODO: how to do this safely (getting segfaults on zaru)
     def __init__(self):
+        #self._init_gst() # not working on zaru (segfault, needs investigating)
+        #self._doplay = self._gstplay
+        self.last = time.time()
+        self._doplay = self._aplay
+
+    def _init_gst(self):
         self.p, self.s = make_playbin(0) # This is the global playbin used by play
         self.p.set_state(gst.STATE_PLAYING)
-        self.last = time.time()
 
     def play(self, num):
         # TODO - fix this
@@ -39,8 +44,15 @@ class Player:
         now = time.time()
         if now - self.last < self.min_delta: return
         self.last = now
+        filename = make_wav(num)
+        self._doplay(filename)
+    
+    def _aplay(self, filename):
+        os.system("aplay %s" % filename)
+
+    def _gstplay(self, filename):
         self.p.set_state(gst.STATE_READY)
-        self.s.set_property("uri", "file://%s" % make_wav(num))
+        self.s.set_property("uri", "file://%s" % filename)
         self.p.set_state(gst.STATE_PLAYING)
 
 wav_player = Player()
