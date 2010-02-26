@@ -12,19 +12,25 @@ def make_wav(num):
     if not os.path.exists(filename):
         os.system('flite -t %s -o wav/%s.wav' % (num, num))
     assert(os.path.exists(filename))
-    return filename
+    return os.path.realpath(filename)
 
 def make_playbin(num):
     filename = make_wav(num)
     p=gst.Pipeline("player")
     s=gst.element_factory_make("playbin", "stream") 
-    s.set_property("uri", "file:///home/alon/accounts/linkedin/1.wav")
+    s.set_property("uri", "file://%s" % filename)
     p.add(s)
-    return p
+    return p, s
+
+g_p, g_s = make_playbin(0) # This is the global playbin used by play
+g_p.set_state(gst.STATE_PLAYING)
 
 def play(num):
-    p = make_playbin(num)
-    p.set_state(gst.STATE_PLAYING)
+    global g_p
+    global g_s
+    g_p.set_state(gst.STATE_CHANGE_PLAYING_TO_PAUSED)
+    g_s.set_property("uri", "file://%s" % make_wav(num))
+    g_p.set_state(gst.STATE_PLAYING)
 
 def main():
     stationary = stationary_factory()
