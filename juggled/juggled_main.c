@@ -51,8 +51,6 @@
 #include "adxl.h"
 #include "spi.h"
 
-static bool rd_adxl = true; // default to on. But allow usb cmd to change it.
-
 U32 adxl_read_count = 0;
 U32 adxl_transmit_count = 0;
 
@@ -63,7 +61,6 @@ READ_WRITE_FLAG__FLAG_IMP_DEFAULT(adxl_flag, false);
 READ_WRITE_FLAG__FLAG_IMP_DEFAULT(print_flag, false);
 READ_WRITE_FLAG__FLAG_IMP_DEFAULT(transmit_flag, true);
 
-static bool transmit_adxl = true;
 static U16 time_to_transmit = false;
 
 #define CYCLES_INIT_DONE 10000
@@ -144,7 +141,7 @@ int main()
         }
         cmd_poll();
 
-        if (rd_adxl)
+        if (read_adxl_flag)
         {
             main_read_adxl();
 
@@ -164,7 +161,7 @@ int main()
                          adxl_read_count, acc_X, acc_Y, acc_Z);
             }
 
-            //_delay_ms(100);
+            //_delay_ms(10);
         }
     }
 }
@@ -270,10 +267,10 @@ void cmd_print_adxl_read_count(U8 argc, char **argv)
 void cmd_send_test_message(U8 argc, char **argv)
 {
     static U8 test_count = 0;
-    U8 str[10];
-    sprintf(str, "%d", test_count++);
+    char str[10];
+    sprintf(str, "%u", test_count++);
     chb_init();
-    chb_write(STATIONARY_SHORT_ADDRESS, str, strlen(str));
+    chb_write(STATIONARY_SHORT_ADDRESS, (U8*)str, strlen(str));
 }
 
 READ_WRITE_FLAG__CMD_IMPL(read_adxl_flag);

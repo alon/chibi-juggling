@@ -33,7 +33,12 @@ void cmd_##flag##_on (U8 argc, char **argv) \
 void cmd_##flag##_off (U8 argc, char **argv) \
 { \
  flag = false;\
+}\
+void cmd_##flag##_show (U8 argc, char **argv) \
+{ \
+    printf_P(PSTR(#flag" %d\n"), flag);\
 }
+
 
 #define READ_WRITE_FLAG__FLAG_IMP(flag) \
 static bool flag;
@@ -44,11 +49,13 @@ static bool flag = def;
 
 #define READ_WRITE_FLAG__CMD_DECL(flag) \
 void cmd_##flag##_on (U8 argc, char **argv); \
-void cmd_##flag##_off (U8 argc, char **argv)
+void cmd_##flag##_off (U8 argc, char **argv); \
+void cmd_##flag##_show (U8 argc, char **argv)
 
 #define READ_WRITE_FLAG__CMD_TBL(flag) \
  {#flag "_on", cmd_##flag##_on},\
- {#flag "_off", cmd_##flag##_off}
+ {#flag "_off", cmd_##flag##_off},\
+ {#flag "_show", cmd_##flag##_show}
 
 READ_WRITE_FLAG__CMD_DECL(read_adxl_flag);
 READ_WRITE_FLAG__CMD_DECL(adxl_flag);
