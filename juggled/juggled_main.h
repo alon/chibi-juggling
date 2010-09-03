@@ -62,8 +62,5 @@ READ_WRITE_FLAG__CMD_DECL(adxl_flag);
 READ_WRITE_FLAG__CMD_DECL(print_flag);
 READ_WRITE_FLAG__CMD_DECL(transmit_flag);
 
-#define SPI_ENB() do {PORTC &= ~(_BV(PORTC6));} while(0)
-#define SPI_DIS() do {PORTC |= _BV(PORTC6);} while(0)
-
 #endif
 

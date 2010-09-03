@@ -83,7 +83,7 @@ OBJDIR = .
 FREAKUSB=../chibi_juggled/freakusb
 CHIBI=../chibi_juggled
 SRC = $(TARGET).c \
-	adxl.c \
+	adxl345.c \
 	spi.c \
 	$(FREAKUSB)/usb/usb.c \
 	$(FREAKUSB)/usb/ctrl.c \
@@ -92,7 +92,7 @@ SRC = $(TARGET).c \
 	$(FREAKUSB)/class/CDC/cdc.c \
 	$(FREAKUSB)/class/CDC/cmd.c \
 	$(CHIBI)/chibi/chb.c \
-	$(CHIBI)/chibi/chb_buf.c \
+	$(CHIBI)/chibi/chb_buf.c
 
 #check which files to load depending on the part type
 ifeq ($(MCU), at90usb162)
@@ -111,7 +111,7 @@ else ifeq ($(MCU), atmega32u4)
 		$(FREAKUSB)/hw/atmega32u4/isr.c \
 		$(CHIBI)/chibi/hw/avrusb32/chb_spi.c \
 		$(CHIBI)/chibi/chb_eeprom.c \
-		$(CHIBI)/chibi/hw/avrusb128/at86rf230/chb_drvr.c
+		$(CHIBI)/chibi/hw/avrusb32/at86rf230/chb_drvr.c
 endif
 	
 

@@ -48,23 +48,22 @@
 #include "chb.h"
 #include "at86rf230/chb_drvr.h" // for short address
 #include "juggling.h"
-#include "adxl.h"
-#include "spi.h"
+#include "adxl345.h"
 
-U32 adxl_read_count = 0;
-U32 adxl_transmit_count = 0;
+static U32 adxl_read_count = 0;
+static U32 adxl_transmit_count = 0;
 
 #define CYCLES_PER_TRANSMIT 1000
 
-READ_WRITE_FLAG__FLAG_IMP(read_adxl_flag);
+READ_WRITE_FLAG__FLAG_IMP_DEFAULT(read_adxl_flag, false);
 READ_WRITE_FLAG__FLAG_IMP_DEFAULT(adxl_flag, false);
 READ_WRITE_FLAG__FLAG_IMP_DEFAULT(print_flag, false);
-READ_WRITE_FLAG__FLAG_IMP_DEFAULT(transmit_flag, true);
+READ_WRITE_FLAG__FLAG_IMP_DEFAULT(transmit_flag, false);
 
 static U16 time_to_transmit = false;
 
-#define ALIVE_TOTAL_CYCLES (1<<14)
-#define ALIVE_ON_CYCLES (1<<10)
+#define ALIVE_TOTAL_CYCLES (1<<13)
+#define ALIVE_ON_CYCLES (1<<9)
 
 
 
@@ -75,22 +74,18 @@ static U16 time_to_transmit = false;
 */
 /**************************************************************************/
 U8 dat[ADXL_PACKET_LENGTH]; // data of packet to be sent
-U8* read_start = dat + ADXL_MAGIC_LENGTH;
+U16* read_start = (U16*)(dat + ADXL_MAGIC_LENGTH);
 
 void main_read_adxl()
 {
     // reinit adxl
-    spi_init();
     adxl_init();
     // read adxl
     adxl_read_count++;
-    read_adxl(read_start);
-    acc_X = (read_start[1] << 8)
-           + read_start[0];
-    acc_Y = (read_start[3] << 8)
-           + read_start[2];
-    acc_Z = (read_start[5] << 8)
-           + read_start[4];
+    adxl_multi_read(ADXL345_DATAX0, (U8*)read_start, 6);
+    acc_X = read_start[0];
+    acc_Y = read_start[1];
+    acc_Z = read_start[2];
 }
 
 /**************************************************************************/
@@ -106,15 +101,14 @@ int main()
     DDRC |= 1<<PORTC7;
     PORTC |= 1<<PORTC7;
 
-    spi_init();
-    adxl_init();
-
     cmd_init();
+
+    //chb_init();
+
+    adxl_init();
 
     // turn off the led
     PORTC &= ~(1<<PORTC7);
-
-    chb_init();
 
     // set our short address - I think its eeprom, so only set it if it
     // isn't that already
@@ -123,7 +117,7 @@ int main()
     }
 
     // don't ask me why this is done twice. It just is. I WILL INVESTIGATE!
-    spi_init();
+    //spi_init();
 
     // turn on the led
     PORTC |= 1<<PORTC7;
@@ -149,7 +143,7 @@ int main()
                 adxl_transmit_count++;
                 time_to_transmit = CYCLES_PER_TRANSMIT;
                 // reinit chibi stack (no need to reset address)
-                chb_init();
+                //chb_init();
                 chb_write(STATIONARY_SHORT_ADDRESS, dat, ADXL_PACKET_LENGTH);
             }
             if (time_to_transmit > 0) {
@@ -160,7 +154,7 @@ int main()
                          adxl_read_count, acc_X, acc_Y, acc_Z);
             }
 
-            //_delay_ms(10);
+            _delay_ms(1); // ok, magic delay. not really magic - works without. But transmit doesn't.
         }
     }
 }
@@ -175,12 +169,7 @@ void cmd_reg_read(U8 argc, char **argv)
     U8 addr, val;
 
     addr = strtol(argv[1], NULL, 16);
-    addr |= (1<<7);         // set the read bit in the first transfer
-
-    SPI_ENB();
-    val = spi_xfer_byte(addr);      // send the address
-    val = spi_xfer_byte(val);       // send dummy data. we just want the return data.
-    SPI_DIS();
+    val = adxl_read(addr);
 
     printf_P(PSTR("Reg Read: %04X, %02X.\n"), addr, val);
 }
@@ -197,13 +186,9 @@ void cmd_reg_write(U8 argc, char **argv)
     addr = strtol(argv[1], NULL, 16);
     val = strtol(argv[2], NULL, 16);
 
-    // make sure the write bit is cleared in the addr
-    addr &= ~(1<<7);
-
-    SPI_ENB();
-    spi_xfer_byte(addr);
-    spi_xfer_byte(val);
-    SPI_DIS();
+    adxl_write(addr, val);
+    // readback for confirm
+    val = adxl_read(addr);
     
     printf_P(PSTR("Write: %04X, %02X.\n"), addr, val);
 }
@@ -277,3 +262,44 @@ READ_WRITE_FLAG__CMD_IMPL(adxl_flag);
 READ_WRITE_FLAG__CMD_IMPL(print_flag);
 READ_WRITE_FLAG__CMD_IMPL(transmit_flag);
 
+
+// Interrupt based adxl reads
+// issues:
+//  SPI should be disabled for other chips and enabled only for adxl
+//   - what port enables adxl?
+//   - what port disables others?
+//   - who are the others
+
+
+// timer1 value to generate a 100 msec interrupt based on 0.125 usec 
+// increment
+#define TIMER_CNT (0xffff-0x320)
+
+static volatile bool update = false;
+
+void enable_adxl_interrupt()
+{
+    // init timer0 and set up for 100 msec timer interrupt
+    TCNT1   = TIMER_CNT;                        
+    TIMSK1  = _BV(TOIE1);               // enable the timer 0 overflow interrupt 
+    TCCR1B  |= _BV(CS12) | _BV(CS10);   // init clock prescaler to 0.125 msec increment
+}
+
+/**************************************************************************/
+/*!
+    Interrupt service routine
+*/
+/**************************************************************************/
+/*
+ISR(TIMER1_OVF_vect)
+{
+    // set the update flag so the main loop that data is updated
+    update = true;
+
+    // do a multiple read
+    adxl_multi_read(ADXL345_DATAX0, read_start, 6);
+
+    // reload the timer
+    TCNT1 = TIMER_CNT;
+}
+*/
