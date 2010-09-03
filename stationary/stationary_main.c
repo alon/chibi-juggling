@@ -62,13 +62,13 @@ int main()
                || rx_data.data[1] != ADXL_MAGIC_BYTE_2) {
                 if (rx_data.len != ADXL_PACKET_LENGTH &&
                     rx_data.len != ADXL_PACKET_LENGTH + 2) {
-                    printf_P(PSTR("Bad packet length, "));
+                    printf_P(PSTR("Bad packet length, %d"), rx_data.len);
                 }
                 if (rx_data.data[0] != ADXL_MAGIC_BYTE_1) {
-                    printf_P(PSTR("Bad first byte, "));
+                    printf_P(PSTR("Bad first byte, %X"), rx_data.data[0]);
                 }
                 if (rx_data.data[1] != ADXL_MAGIC_BYTE_2) {
-                    printf_P(PSTR("Bad second byte, "));
+                    printf_P(PSTR("Bad second byte, %X"), rx_data.data[1]);
                 }
                 printf_P(PSTR("Non adxl (src %02X), #%d:"),
                          rx_data.src_addr, rx_data.len); //rx_data.data);

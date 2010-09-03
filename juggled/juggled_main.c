@@ -72,19 +72,21 @@ static U16 time_to_transmit = false;
  Globals and small helpers for main
 */
 /**************************************************************************/
-U8 dat[ADXL_PACKET_LENGTH]; // data of packet to be sent
-U16* read_start = (U16*)(dat + ADXL_MAGIC_LENGTH);
+static U8 dat[ADXL_PACKET_LENGTH+2]; // data of packet to be sent
+static U8* read_start = &dat[ADXL_MAGIC_LENGTH];
+
+void enable_adxl_interrupt();
 
 void main_read_adxl()
 {
     // reinit adxl
-    adxl_init();
+    //adxl_init();
     // read adxl
     adxl_read_count++;
-    adxl_multi_read(ADXL345_DATAX0, (U8*)read_start, 6);
-    acc_X = read_start[0];
-    acc_Y = read_start[1];
-    acc_Z = read_start[2];
+    adxl_multi_read(ADXL345_DATAX0, read_start, 6);
+    acc_X = (read_start[0]<<8) + read_start[1];
+    acc_Y = (read_start[2]<<8) + read_start[3];
+    acc_Z = (read_start[4]<<8) + read_start[5];
 }
 
 /**************************************************************************/
