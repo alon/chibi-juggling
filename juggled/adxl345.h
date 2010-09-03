@@ -8,6 +8,12 @@
 
 // CHB_SPI registers
 
+// Bandwidth
+#define ADXL345_BW_RATE 0x2c
+
+// b1010
+#define ADXL345_100HZ_OUTPUT 10
+
 // Power Control register
 #define ADXL345_POWER_CTL 0x2d
 
@@ -19,6 +25,12 @@
 #define ADXL345_DATAX0 0x32
 
 #define ADXL345_DATA_FORMAT 0x31
+
+#define ADXL345_FULLRES 8
+#define ADXL345_2G   0
+#define ADXL345_4G   1
+#define ADXL345_8G   2
+#define ADXL345_16G  3
 
 #define ADXL345_FIFO_CTL 0x38
 
