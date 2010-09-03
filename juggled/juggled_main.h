@@ -57,10 +57,9 @@ void cmd_##flag##_show (U8 argc, char **argv)
  {#flag "_off", cmd_##flag##_off},\
  {#flag "_show", cmd_##flag##_show}
 
-READ_WRITE_FLAG__CMD_DECL(read_adxl_flag);
-READ_WRITE_FLAG__CMD_DECL(adxl_flag);
-READ_WRITE_FLAG__CMD_DECL(print_flag);
-READ_WRITE_FLAG__CMD_DECL(transmit_flag);
+READ_WRITE_FLAG__CMD_DECL(read_adxl);
+READ_WRITE_FLAG__CMD_DECL(print);
+READ_WRITE_FLAG__CMD_DECL(transmit);
 
 #endif
 

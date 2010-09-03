@@ -14,10 +14,10 @@ static cmd_t cmd_tbl[] =
     {"csent",   cmd_print_adxl_transmit_count},
     {"cread",   cmd_print_adxl_read_count},
     {"send",    cmd_send_test_message},
-    READ_WRITE_FLAG__CMD_TBL(read_adxl_flag),
-    READ_WRITE_FLAG__CMD_TBL(adxl_flag),
-    READ_WRITE_FLAG__CMD_TBL(print_flag),
-    READ_WRITE_FLAG__CMD_TBL(transmit_flag),
+    {"enb",     cmd_enable_adxl_interrupt},
+    READ_WRITE_FLAG__CMD_TBL(read_adxl),
+    READ_WRITE_FLAG__CMD_TBL(print),
+    READ_WRITE_FLAG__CMD_TBL(transmit),
     {NULL,      NULL}
 };
 

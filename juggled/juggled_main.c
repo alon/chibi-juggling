@@ -55,10 +55,9 @@ static U32 adxl_transmit_count = 0;
 
 #define CYCLES_PER_TRANSMIT 1000
 
-READ_WRITE_FLAG__FLAG_IMP_DEFAULT(read_adxl_flag, false);
-READ_WRITE_FLAG__FLAG_IMP_DEFAULT(adxl_flag, false);
-READ_WRITE_FLAG__FLAG_IMP_DEFAULT(print_flag, false);
-READ_WRITE_FLAG__FLAG_IMP_DEFAULT(transmit_flag, false);
+READ_WRITE_FLAG__FLAG_IMP_DEFAULT(read_adxl, true);
+READ_WRITE_FLAG__FLAG_IMP_DEFAULT(print, false);
+READ_WRITE_FLAG__FLAG_IMP_DEFAULT(transmit, true);
 
 static U16 time_to_transmit = false;
 
@@ -253,14 +252,13 @@ void cmd_send_test_message(U8 argc, char **argv)
     static U8 test_count = 0;
     char str[10];
     sprintf(str, "%u", test_count++);
-    chb_init();
+    //chb_init();
     chb_write(STATIONARY_SHORT_ADDRESS, (U8*)str, strlen(str));
 }
 
-READ_WRITE_FLAG__CMD_IMPL(read_adxl_flag);
-READ_WRITE_FLAG__CMD_IMPL(adxl_flag);
-READ_WRITE_FLAG__CMD_IMPL(print_flag);
-READ_WRITE_FLAG__CMD_IMPL(transmit_flag);
+READ_WRITE_FLAG__CMD_IMPL(read_adxl);
+READ_WRITE_FLAG__CMD_IMPL(print);
+READ_WRITE_FLAG__CMD_IMPL(transmit);
 
 
 // Interrupt based adxl reads
