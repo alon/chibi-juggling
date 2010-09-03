@@ -127,6 +127,12 @@ int main()
 
     dat[0] = ADXL_MAGIC_BYTE_1;
     dat[1] = ADXL_MAGIC_BYTE_2;
+    dat[2] = ADXL_MAGIC_BYTE_1;
+    dat[3] = ADXL_MAGIC_BYTE_2;
+    dat[4] = ADXL_MAGIC_BYTE_1;
+    dat[5] = ADXL_MAGIC_BYTE_2;
+    dat[6] = ADXL_MAGIC_BYTE_1;
+    dat[7] = ADXL_MAGIC_BYTE_2;
     
     while (1)
     {
@@ -152,12 +158,13 @@ int main()
             if (time_to_transmit > 0) {
                 --time_to_transmit;
             }
-            if (print_flag) {
-                printf_P(PSTR("%d %d\t%d\t%d\n"),
-                         adxl_read_count, acc_X, acc_Y, acc_Z);
+            if (print) {
+                printf_P(PSTR("%d\t%d %d\t%d %d\t%d %d\t%d %d\t%d\n"),
+                         adxl_read_count, dat[0], dat[1], dat[2], dat[3],
+                         dat[4], dat[5], dat[6], dat[7], dat[8]);
             }
 
-            _delay_ms(1); // ok, magic delay. not really magic - works without. But transmit doesn't.
+            //_delay_ms(1); // ok, magic delay. not really magic - works without. But transmit doesn't.
         }
     }
 }
