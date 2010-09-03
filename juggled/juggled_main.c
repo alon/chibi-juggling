@@ -102,9 +102,11 @@ int main()
 
     cmd_init();
 
-    //chb_init();
+    chb_init();
 
     adxl_init();
+
+    enable_adxl_interrupt();
 
     // turn off the led
     PORTC &= ~(1<<PORTC7);
@@ -133,12 +135,12 @@ int main()
         }
         cmd_poll();
 
-        if (read_adxl_flag)
+        if (read_adxl)
         {
-            main_read_adxl();
+            //main_read_adxl();
 
             // write packet - just the raw bytes from SPI will do.
-            if (transmit_flag && time_to_transmit <= 0) {
+            if (transmit && time_to_transmit <= 0) {
                 adxl_transmit_count++;
                 time_to_transmit = CYCLES_PER_TRANSMIT;
                 // reinit chibi stack (no need to reset address)
@@ -283,21 +285,26 @@ void enable_adxl_interrupt()
     TCCR1B  |= _BV(CS12) | _BV(CS10);   // init clock prescaler to 0.125 msec increment
 }
 
+void cmd_enable_adxl_interrupt(U8 argc, char **argv)
+{
+    enable_adxl_interrupt();
+}
+
 /**************************************************************************/
 /*!
     Interrupt service routine
 */
 /**************************************************************************/
-/*
 ISR(TIMER1_OVF_vect)
 {
-    // set the update flag so the main loop that data is updated
-    update = true;
+    if (read_adxl) {
+        // set the update flag so the main loop that data is updated
+        update = true;
 
-    // do a multiple read
-    adxl_multi_read(ADXL345_DATAX0, read_start, 6);
+        // do a multiple read
+        adxl_multi_read(ADXL345_DATAX0, read_start, 6);
+    }
 
     // reload the timer
     TCNT1 = TIMER_CNT;
 }
-*/

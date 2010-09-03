@@ -19,6 +19,7 @@ void cmd_set_short_addr(U8 argc, char **argv);
 void cmd_get_short_addr(U8 argc, char **argv);
 void cmd_print_adxl_transmit_count(U8 argc, char **argv);
 void cmd_print_adxl_read_count(U8 argc, char **argv);
+void cmd_enable_adxl_interrupt(U8 argc, char **argv);
 
 // Test / Debugging commands
 void cmd_who(U8 argc, char **argv);
