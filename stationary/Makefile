@@ -109,7 +109,7 @@ else ifeq ($(MCU), atmega32u4)
 		$(FREAKUSB)/hw/atmega32u4/isr.c \
 		$(CHIBI)/chibi/hw/avrusb32/chb_spi.c \
 		$(CHIBI)/chibi/chb_eeprom.c \
-		$(CHIBI)/chibi/hw/avrusb128/at86rf230/chb_drvr.c
+		$(CHIBI)/chibi/hw/avrusb32/at86rf230/chb_drvr.c
 endif
 	
 
