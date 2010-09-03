@@ -9,7 +9,7 @@
 // CHB_SPI registers
 
 // Power Control register
-#define ADXL345_POWER_CTL 0xd2
+#define ADXL345_POWER_CTL 0x2d
 
 // Bit masks for the POWER_CTL register
 #define ADXL345_MEASURE (1<<3)
