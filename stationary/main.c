@@ -84,11 +84,23 @@ int main()
             if (print_adxl)
                 printf_P(PSTR("got %d, %d, %d\n"), acc_X, acc_Y, acc_Z);
             // clear the rx flag and reset the buffer (as per chb_demo.c)
-            chb_clr();
+            //chb_clr(); // seems to be removed 2010-04-08_chibi_v0.8
         }
 
         _delay_ms(10);
     }
+}
+
+/**************************************************************************/
+/*!
+    Return a pointer to the command table. You don't need to do anything with
+    this. This is used by the command line parser to retrieve the table when
+    it compares what was written on the command line with the available commands.
+*/
+/**************************************************************************/
+cmd_t *cmd_tbl_get()
+{
+    return cmd_tbl;
 }
 
 /**************************************************************************/

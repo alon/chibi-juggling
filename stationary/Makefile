@@ -91,8 +91,6 @@ SRC = $(TARGET).c \
 	$(FREAKUSB)/class/CDC/cmd.c \
 	$(CHIBI)/chibi/chb.c \
 	$(CHIBI)/chibi/chb_buf.c \
-	$(CHIBI)/chibi/chb_spi.c \
-	$(CHIBI)/chibi/chb_eeprom.c
 
 #check which files to load depending on the part type
 ifeq ($(MCU), at90usb162)
@@ -109,7 +107,9 @@ else ifeq ($(MCU), atmega32u4)
 	SRC += 	$(FREAKUSB)/hw/atmega32u4/ep.c \
 		$(FREAKUSB)/hw/atmega32u4/hw.c \
 		$(FREAKUSB)/hw/atmega32u4/isr.c \
-		$(CHIBI)/chibi/hw/avrusb32/at86rf230/chb_drvr.c
+		$(CHIBI)/chibi/hw/avrusb32/chb_spi.c \
+		$(CHIBI)/chibi/chb_eeprom.c \
+		$(CHIBI)/chibi/hw/avrusb128/at86rf230/chb_drvr.c
 endif
 	
 
@@ -144,7 +144,7 @@ DEBUG = dwarf-2
 #     Each directory must be seperated by a space.
 #     Use forward slashes for directory separators.
 #     For a directory that has spaces, enclose it in quotes.
-EXTRAINCDIRS = $(FREAKUSB)/usb $(FREAKUSB)/class/CDC $(CHIBI)/chibi/hw/avrusb32/at86rf230 $(CHIBI)/chibi ../include
+EXTRAINCDIRS = $(FREAKUSB)/usb $(FREAKUSB)/class/CDC $(CHIBI)/chibi/hw/avrusb32/at86rf230 $(CHIBI)/chibi ../include $(FREAKUSB)/hw/atmega32u4 $(CHIBI)/chibi/hw/avrusb32
 
 #check which directories to include depending on part type
 ifeq ($(MCU), at90usb162)
@@ -152,8 +152,8 @@ ifeq ($(MCU), at90usb162)
 else ifeq ($(MCU), at90usb1286)
 	EXTRAINCDIRS += $(FREAKUSB)/hw/at90usbxx6_7
 else ifeq ($(MCU), atmega32u4)
-	EXTRAINCDIRS += $(FREAKUSB)/hw/atmega32u4
-	EXTRAINCDIRS += $(CHIBI)/chibi/hw/avrusb32
+	EXTRAINCDIRS += $(FREAKUSB)/hw/atmegausb
+	EXTRAINCDIRS += $(CHIBI)/chibi/hw/atmegausb
 endif
 
 # Compiler flag to set the C Standard level.
