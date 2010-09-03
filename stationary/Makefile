@@ -80,8 +80,8 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-FREAKUSB=../../chibi/freakusb
-CHIBI=../../chibi
+FREAKUSB=../chibi_stationary/freakusb
+CHIBI=../chibi_stationary
 SRC = $(TARGET).c \
 	$(FREAKUSB)/usb/usb.c \
 	$(FREAKUSB)/usb/ctrl.c \
