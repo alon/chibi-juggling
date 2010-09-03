@@ -120,8 +120,9 @@ int main()
 
     // set our short address - I think its eeprom, so only set it if it
     // isn't that already
-    if (chb_get_short_addr() != JUGGLED_SHORT_ADDRESS)
+    if (chb_get_short_addr() != JUGGLED_SHORT_ADDRESS) {
         chb_set_short_addr(JUGGLED_SHORT_ADDRESS);
+    }
 
     spi_init(); // don't ask me why this is done twice. It just is. I WILL INVESTIGATE!
 
@@ -155,9 +156,13 @@ int main()
                 chb_init();
                 chb_write(STATIONARY_SHORT_ADDRESS, dat, ADXL_PACKET_LENGTH);
             }
-            if (time_to_transmit > 0) --time_to_transmit;
-            if (print_flag)
-                printf_P(PSTR("%d %d\t%d\t%d\n"), adxl_read_count, acc_X, acc_Y, acc_Z);
+            if (time_to_transmit > 0) {
+                --time_to_transmit;
+            }
+            if (print_flag) {
+                printf_P(PSTR("%d %d\t%d\t%d\n"),
+                         adxl_read_count, acc_X, acc_Y, acc_Z);
+            }
 
             //_delay_ms(100);
         }
