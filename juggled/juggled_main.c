@@ -54,7 +54,7 @@
 U32 adxl_read_count = 0;
 U32 adxl_transmit_count = 0;
 
-#define CYCLES_PER_TRANSMIT 200
+#define CYCLES_PER_TRANSMIT 1000
 
 READ_WRITE_FLAG__FLAG_IMP(read_adxl_flag);
 READ_WRITE_FLAG__FLAG_IMP_DEFAULT(adxl_flag, false);
@@ -63,7 +63,8 @@ READ_WRITE_FLAG__FLAG_IMP_DEFAULT(transmit_flag, true);
 
 static U16 time_to_transmit = false;
 
-#define CYCLES_INIT_DONE 10000
+#define ALIVE_TOTAL_CYCLES (1<<14)
+#define ALIVE_ON_CYCLES (1<<10)
 
 
 
@@ -121,7 +122,8 @@ int main()
         chb_set_short_addr(JUGGLED_SHORT_ADDRESS);
     }
 
-    spi_init(); // don't ask me why this is done twice. It just is. I WILL INVESTIGATE!
+    // don't ask me why this is done twice. It just is. I WILL INVESTIGATE!
+    spi_init();
 
     // turn on the led
     PORTC |= 1<<PORTC7;
@@ -129,15 +131,12 @@ int main()
     dat[0] = ADXL_MAGIC_BYTE_1;
     dat[1] = ADXL_MAGIC_BYTE_2;
     
-    bool initing = true;
-
     while (1)
     {
         ++t;
-        if (initing && t == CYCLES_INIT_DONE) {
-            initing = false;
-            PORTC &= ~(1<<PORTC7);
-            time_to_transmit = CYCLES_PER_TRANSMIT;
+        if ((t % ALIVE_TOTAL_CYCLES) == 0 ||
+            (t % ALIVE_TOTAL_CYCLES) == ALIVE_ON_CYCLES) {
+            PORTC ^= 1<<PORTC7;
         }
         cmd_poll();
 
