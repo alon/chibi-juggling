@@ -8,7 +8,7 @@
 #include <avr/pgmspace.h>
 #include <avr/io.h>
 #include <util/delay.h>
-#include "main.h"
+#include "stationary_main.h"
 #include "cmd_tbl.h"
 #include "cmd.h"
 #include "chb.h"

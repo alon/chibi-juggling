@@ -43,7 +43,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-#include "main.h"
+#include "juggled_main.h"
 #include "cmd.h"
 #include "chb.h"
 #include "at86rf230/chb_drvr.h" // for short address

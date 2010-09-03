@@ -2,7 +2,7 @@
 #define __ADXL_H__
 
 #include <types.h>
-#include "main.h"
+#include "juggled_main.h"
 
 extern U16 acc_X, acc_Y, acc_Z;
 extern volatile bool is_adxl_on;

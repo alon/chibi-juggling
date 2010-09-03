@@ -2,7 +2,7 @@
 #define __CMD_TBL_H__
 
 #include "cmd.h"
-#include "main.h"
+#include "stationary_main.h"
 
 static cmd_t cmd_tbl[] = 
 {
