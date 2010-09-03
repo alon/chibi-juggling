@@ -56,26 +56,29 @@ void adxl_init()
     is_adxl_on = true;
     spi_init();
     // set power bit
-    //adxl_write(ADXL345_POWER_CTL, ADXL345_MEASURE);
+    adxl_write(ADXL345_POWER_CTL, ADXL345_MEASURE);
 
-    SPI_ENB();
-    spi_xfer_byte(ADXL345_POWER_CTL);
-    spi_xfer_byte(ADXL345_LINK | ADXL345_MEASURE);
-    SPI_DIS();
+    // bandwidth
+    adxl_write(ADXL345_BW_RATE, ADXL345_100HZ_OUTPUT);
+
+    //SPI_ENB();
+    //spi_xfer_byte(ADXL345_POWER_CTL);
+    //spi_xfer_byte(ADXL345_LINK | ADXL345_MEASURE);
+    //SPI_DIS();
 
     // set full resolution
-    //adxl_write(ADXL345_DATA_FORMAT, 0x08);
-    SPI_ENB();
-    spi_xfer_byte(ADXL345_DATA_FORMAT);
-    spi_xfer_byte(0x08);
-    SPI_DIS();
+    adxl_write(ADXL345_DATA_FORMAT, ADXL345_FULLRES | ADXL345_8G);
+    //SPI_ENB();
+    //spi_xfer_byte(ADXL345_DATA_FORMAT);
+    //spi_xfer_byte(0x08);
+    //SPI_DIS();
 
     // clear and disable the fifo
-    //adxl_write(ADXL345_FIFO_CTL, 0x00);
-    SPI_ENB();
-    spi_xfer_byte(ADXL345_FIFO_CTL);
-    spi_xfer_byte(0x00);
-    SPI_DIS();
+    adxl_write(ADXL345_FIFO_CTL, 0x00);
+    //SPI_ENB();
+    //spi_xfer_byte(ADXL345_FIFO_CTL);
+    //spi_xfer_byte(0x00);
+    //SPI_DIS();
 }
 
 // define the interface that will be used to access the ADXL345.
