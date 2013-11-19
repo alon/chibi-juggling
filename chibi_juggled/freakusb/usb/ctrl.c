@@ -51,7 +51,7 @@
 void ctrl_get_desc(req_t *req)
 {
     U8 i = 0, desc_len = 0, desc_type, desc_idx;
-    U8 *desc = NULL;
+    const U8 *desc = NULL;
 
     desc_type = (req->val >> 8);
     desc_idx = req->val & 0x00ff;

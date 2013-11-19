@@ -250,11 +250,11 @@ void ep_config(U8 ep_num, U8 type, U8 dir, U8 size);
 void ep_drain_fifo(U8 ep);
 
 // desc.c
-U8 *desc_dev_get();
+const U8 *desc_dev_get();
 U8 desc_dev_get_len();
-U8 *desc_cfg_get();
+const U8 *desc_cfg_get();
 U8 desc_cfg_get_len();
-U8 *desc_dev_qual_get();
+const U8 *desc_dev_qual_get();
 U8 desc_dev_qual_get_len();
 U8 *desc_str_get(U8 index);
 U8 desc_str_get_len(U8 index);

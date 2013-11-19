@@ -38,7 +38,7 @@
 #include "freakusb.h"
 #include <avr/pgmspace.h>
 
-U8 dev_desc[] PROGMEM =
+const U8 dev_desc[] PROGMEM __attribute__((progmem)) =
 {
         0x12,       // bLength
         DEV_DESCR,  // bDescriptorType
@@ -61,7 +61,7 @@ U8 dev_desc[] PROGMEM =
 };
 
 // cfg descriptor
-U8 cfg_desc[] PROGMEM =
+const U8 cfg_desc[] PROGMEM __attribute__((progmem)) =
 {
     // cfg descr
     0x09,           // bLength: cfg desc len
@@ -153,7 +153,7 @@ U8 cfg_desc[] PROGMEM =
     0x00            // bInterval: ignore for Bulk transfer
 };
 
-U8 dev_qualifier_desc[] PROGMEM =
+const U8 dev_qualifier_desc[] PROGMEM __attribute__((progmem)) =
 {
     0x0A,           // bLength
     0x06,           // bDescriptorType: Device Qualifier
@@ -167,7 +167,7 @@ U8 dev_qualifier_desc[] PROGMEM =
     0x00            // bReserved: Don't touch this or the device explodes
 };
 
-U8 lang_str_desc[] PROGMEM =
+const U8 lang_str_desc[] PROGMEM __attribute__((progmem)) =
 {
     0x4,        // bLength
     STR_DESCR,  // bDescriptorType: String
@@ -175,7 +175,7 @@ U8 lang_str_desc[] PROGMEM =
     0x09, 0x04
 };
 
-U8 vendor_str_desc[] PROGMEM =
+const U8 vendor_str_desc[] PROGMEM __attribute__((progmem)) =
 {
     0x14,       // bLength
     STR_DESCR,  // bDescriptorType: String
@@ -184,7 +184,7 @@ U8 vendor_str_desc[] PROGMEM =
     's',0
 };
 
-U8 prod_str_desc[] PROGMEM =
+const U8 prod_str_desc[] PROGMEM __attribute__((progmem)) =
 {
     0x4A,      // bLength: 0x3E (62 bytes = sizeof str fields + string)
     STR_DESCR, // bDescriptorType: String
@@ -197,7 +197,7 @@ U8 prod_str_desc[] PROGMEM =
     'P',0, 'o',0, 'r',0, 't',0,
 };
 
-U8 serial_str_desc[] PROGMEM =
+const U8 serial_str_desc[] PROGMEM __attribute__((progmem)) =
 {
     0x14,       // bLength: 0x14 (20 bytes = sizeof str fields + string)
     STR_DESCR,  // bDescriptorType: String
@@ -211,7 +211,7 @@ U8 serial_str_desc[] PROGMEM =
     Return a pointer to the device descriptor.
 */
 /**************************************************************************/
-U8 *desc_dev_get()
+const U8 *desc_dev_get()
 {
     return dev_desc;
 }
@@ -232,7 +232,7 @@ U8 desc_dev_get_len()
     Return a pointer to the configuration descriptor.
 */
 /**************************************************************************/
-U8 *desc_cfg_get()
+const U8 *desc_cfg_get()
 {
     return cfg_desc;
 }
@@ -254,7 +254,7 @@ U8 desc_cfg_get_len()
     Return a pointer to the device qualifier.
 */
 /**************************************************************************/
-U8 *desc_dev_qual_get()
+const U8 *desc_dev_qual_get()
 {
     return dev_qualifier_desc;
 }

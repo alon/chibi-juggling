@@ -171,6 +171,7 @@ ISR(USB_COM_vect)
 
     // get the pcb for later use
     pcb = usb_pcb_get();
+    (void)pcb;
 
     // save off the ep number we just had
     ep_num = UENUM;
